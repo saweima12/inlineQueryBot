@@ -1,7 +1,11 @@
-from sanic import Blueprint
+from sanic import Blueprint, Request
 
+from .services import bot
 
 bp = Blueprint()
 
-async def inline_qeury():
-    pass
+@bp.post('/mmbq/<token:str>')
+async def on_update(request: Request, token: str):
+    
+    _bot = bot.get_bot()
+
