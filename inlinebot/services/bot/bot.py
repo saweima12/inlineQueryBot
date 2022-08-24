@@ -16,7 +16,7 @@ def get_dp() -> Dispatcher:
 
 def setup(app: Sanic):
     token = app.config["BOT_TOKEN"]
-    webhook_url = app.config["BOT_WEBHOOK_URL"]
+    webhook_url = app.config["DOMAIN_URL"]
 
     bot = Bot(token)
     dp = Dispatcher(bot)
