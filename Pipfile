@@ -4,9 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-sanic = "*"
+sanic = {extras = ["ext"], version = "*"}
 aiogram = "*"
-meilisearch = "*"
+pydantic = "*"
+meilisearch-python-async = "*"
+orjson = "*"
 
 [dev-packages]
 
