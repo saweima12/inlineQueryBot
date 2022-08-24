@@ -1,9 +1,8 @@
 import os
 from sanic import Sanic
 from inlinebot.services import bot
-from inlinebot.view import bp
 
-from . import config
+from . import config, views
 
 # define sanic application.
 app = Sanic(__name__, env_prefix="INLINEBOT_")
@@ -11,7 +10,7 @@ app = Sanic(__name__, env_prefix="INLINEBOT_")
 app.update_config(config)
 
 # load config on environment path.
-env_path = os.environ.get("_INLINEBOT_CONFIG")
+env_path = os.environ.get("INLINEBOT_CONFIG")
 if env_path:
     app.update_config(env_path)
 
@@ -20,5 +19,5 @@ if env_path:
 bot.setup(app)
 
 # register route.
-app.static("/admin", "/static/admin")
-app.blueprint(bp)
+views.register(app)
+app.static("/admin", "static/admin")
