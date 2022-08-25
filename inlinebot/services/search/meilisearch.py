@@ -16,13 +16,19 @@ def setup(app: Sanic, index_list: List[MeiliIndex]=[]):
     meili_key = app.config.get("MEILISEARCH_MASTERKEY")
     client = Client(meili_url,meili_key)
 
-    # initialize 
-    async def on_main_startup():
+    # set lifecycle hook
+    @app.main_process_start
+    async def on_main_startup(app: Sanic):
+        # print all keys.
+        keys = await client.get_keys()
+        for key in keys.results:
+            print(f"{key.name}:", key.key)
+
         for item in index_list:
             await client.create_index(item.uid, item.primary_key)
-
-
-    async def before_stop():
+    
+    @app.before_server_stop
+    async def before_stop(app: Sanic):
         await client.aclose()
 
     # attach to ctx

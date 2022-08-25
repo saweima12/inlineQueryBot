@@ -4,3 +4,4 @@ from dataclasses import dataclass
 class MeiliIndex:
     uid: str
     primary_key: str
+

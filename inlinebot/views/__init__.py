@@ -1,5 +1,18 @@
-from sanic import Sanic
-from . import bot
+from sanic import Sanic, Blueprint
+from . import admin, bot
 
 def register(app: Sanic):
-    app.blueprint(bot.bp)
+
+    # 
+    url_prefix = app.config.get("URL_PREFIX")
+
+    # register subpath to group & set url_prefix
+    group = Blueprint.group(
+        [
+            bot.bp, 
+            admin.bp
+        ],
+        url_prefix="/mmbq")
+
+    # register group to app
+    app.blueprint(group)

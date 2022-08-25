@@ -1,8 +1,9 @@
 from sanic import Blueprint, Request, response
+from sanic.log import logger
 from aiogram.types import Update
 from inlinebot.services import bot
 
-bp = Blueprint("inline_query", url_prefix="/mmbq")
+bp = Blueprint("inline_query")
 
 @bp.post("/<token:str>")
 async def on_update(request: Request, token: str):
@@ -15,7 +16,9 @@ async def on_update(request: Request, token: str):
         return response.empty(200)
 
     update = Update(**request.json)
-
+    logger.debug(f"on_update {update.as_json()}")
     # set default bot & dispatch event.
     _bot.set_current(_bot)
-    _dp.process_update(update)
+    await _dp.process_update(update)
+
+    return response.empty(200)

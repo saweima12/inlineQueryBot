@@ -1,6 +1,9 @@
-# BOT WEBHOOK
+# COMMON
 DOMAIN_URL="http://localhost"
+
+# BOT
 BOT_TOKEN=""
+URL_PREFIX="/"
 
 # MEILISEARCH
 MEILISEARCH_URL="http://localhost:7700"

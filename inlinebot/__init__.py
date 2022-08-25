@@ -1,8 +1,10 @@
 import os
 from sanic import Sanic
-from inlinebot.services import bot
+from inlinebot.services import bot, search
+from inlinebot.services.search.types import MeiliIndex
 
-from . import config, views
+from . import config, views, handler
+
 
 # define sanic application.
 app = Sanic(__name__, env_prefix="INLINEBOT_")
@@ -15,8 +17,20 @@ if env_path:
     app.update_config(env_path)
 
 
-# register service.
+indexs_list = [
+    MeiliIndex("config", "id"), 
+    MeiliIndex("checked", "uid"), 
+    MeiliIndex("unchecked", "uid")
+]
+
+# setup search engine.
+search.setup(app, indexs_list)
+
+# setup bot instance.
 bot.setup(app)
+
+# setup bussiness logic.
+handler.register_handler(app)
 
 # register route.
 views.register(app)

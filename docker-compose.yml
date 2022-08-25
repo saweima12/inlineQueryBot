@@ -7,10 +7,10 @@ services:
     volumes:
       - .:/app
     ports:
-      - 8030:8030
+      - 8001:8001
     environment:
       - BOT_CONFIG=/app/env.py
-    command: "sanic inlinebot:app -H 0.0.0.0 -p 8030 -w 2"
+    command: "sanic inlinebot:app -H 0.0.0.0 -p 8001 -w 1"
   meilisearch:
     container_name: meilisearch
     image: getmeili/meilisearch:v0.28
