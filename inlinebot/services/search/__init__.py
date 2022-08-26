@@ -1,1 +1,0 @@
-from .meilisearch import get_client, setup

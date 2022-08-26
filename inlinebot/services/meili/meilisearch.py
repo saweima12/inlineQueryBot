@@ -26,7 +26,10 @@ def setup(app: Sanic, index_list: List[MeiliIndex]=[]):
 
         for item in index_list:
             await client.create_index(item.uid, item.primary_key)
+            if item.setting:
+                await client.index(item.uid).update_settings(item.setting)
     
+
     @app.before_server_stop
     async def before_stop(app: Sanic):
         await client.aclose()
