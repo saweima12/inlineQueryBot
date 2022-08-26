@@ -20,7 +20,7 @@ class CommandMap:
 
     def _command_split(self, text: str) -> Tuple[str, List[str]]:
         groups = text.strip().split()
-        cmd = groups[0].lstrip('$')
+        cmd = groups[0].lstrip(self.prefix)
         args = groups[1:]
         return cmd, args
 
