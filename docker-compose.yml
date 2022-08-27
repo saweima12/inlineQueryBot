@@ -1,6 +1,14 @@
 version: '3.7'
 
 services:
+  meilisearch:
+    container_name: meilisearch
+    image: getmeili/meilisearch:v0.28
+    ports:
+      - 7700:7700
+    volumes:
+      - ./data/meili_data:/meili_data
+    command: 'meilisearch --env="development"'
   bot:
     container_name: inline-bot
     build: .
@@ -11,11 +19,3 @@ services:
     environment:
       - BOT_CONFIG=/app/env.py
     command: "sanic inlinebot:app -H 0.0.0.0 -p 8001 -w 1"
-  meilisearch:
-    container_name: meilisearch
-    image: getmeili/meilisearch:v0.28
-    ports:
-      - 7700:7700
-    volumes:
-      - /meili_data:/meili_data
-    command: 'meilisearch --env="development"'
