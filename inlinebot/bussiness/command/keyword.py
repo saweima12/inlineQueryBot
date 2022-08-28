@@ -45,7 +45,7 @@ async def set_keyword(*params, helper: MessageHelper, **options):
             item.delete(meili),
             checked_item.save(meili)
         )
-        await helper.msg.reply(textlang.SK_SUCCESS.format(keywords=item.keywords))
+        await helper.msg.reply(textlang.SK_SUCCESS.format(keywords=checked_item.keywords))
         return
 
     # didn't find document reply error
