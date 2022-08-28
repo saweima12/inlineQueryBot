@@ -20,8 +20,8 @@ class CheckedMediaIndex(MeiliIndex):
     primary_key = "uid"
 
     setting = MeiliSearchSettings(
-        searchable_attributes=["keywords"],
-        filterable_attributes=["keywords"]
+        searchable_attributes=["keywords", "uid"],
+        filterable_attributes=["keywords", "uid"]
     )
 
 @dataclass
@@ -29,3 +29,7 @@ class UnCheckedMediaIndex(MeiliIndex):
     
     uid = "unchecked"
     primary_key = "uid"
+    setting = MeiliSearchSettings(
+        searchable_attributes=["keywords", "media_type", "attach", "uid"],
+        filterable_attributes=["keywords", "media_type", "attach", "uid"]
+    )
