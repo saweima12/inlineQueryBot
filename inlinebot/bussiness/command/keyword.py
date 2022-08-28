@@ -13,7 +13,7 @@ async def set_keyword(*params, helper: MessageHelper, **options):
     # check whitelist
     meili = get_client()
 
-    if not is_avaliable(params, helper, meili):
+    if not await is_avaliable(params, helper=helper, meili=meili):
         return
   
     reply_helper = MessageHelper(helper.msg.reply_to_message)
@@ -29,6 +29,7 @@ async def set_keyword(*params, helper: MessageHelper, **options):
     if item:
         item.keywords = keywords
         await item.save(meili)
+        await helper.msg.reply(textlang.SK_SUCCESS)
         return
 
     #  try get document from unchecked.
@@ -39,18 +40,59 @@ async def set_keyword(*params, helper: MessageHelper, **options):
         checked_item = CheckedMediaItem(**item.dict())
         checked_item.keywords = keywords
         
+        # save to checked db.
         await asyncio.gather(
             item.delete(meili),
             checked_item.save(meili)
         )
-        # save to checked db.
+        await helper.msg.reply(textlang.SK_SUCCESS)
         return
 
     # didn't find document reply error
     await helper.msg.reply(textlang.SK_404_DOCUMENT)
 
 async def add_keyword(*params, helper: MessageHelper, **options):
-    pass
+    # check whitelist
+    meili = get_client()
+
+    if not await is_avaliable(params, helper=helper, meili=meili):
+        return
+  
+    reply_helper = MessageHelper(helper.msg.reply_to_message)
+        
+    # get first params & split.
+    keywords = str(params[0]).split(',')
+
+    # try get document from checked.
+    content: Sticker | Animation = reply_helper.content
+    item = await CheckedMediaItem.get_item(content.file_unique_id, meili)
+
+    # overwirte checked item.
+    if item:
+        item.keywords = [*item.keywords, *keywords]
+        await item.save(meili)
+        await helper.msg.reply(textlang.AK_SUCCESS)
+        return
+
+    #  try get document from unchecked.
+    item = await UnCheckedMediaItem.get_item(content.file_unique_id, meili)
+
+    if item:
+        # remove from unchecked, insert into checked.
+        checked_item = CheckedMediaItem(**item.dict())
+        checked_item.keywords = keywords
+        
+        # save to checked db.
+        await asyncio.gather(
+            item.delete(meili),
+            checked_item.save(meili)
+        )
+        await helper.msg.reply(textlang.AK_SUCCESS)
+        return
+
+    # didn't find document reply error
+    await helper.msg.reply(textlang.SK_404_DOCUMENT)
+    
 
 async def is_avaliable(*params, helper: MessageHelper, meili: Client):
  

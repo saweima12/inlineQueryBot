@@ -1,10 +1,17 @@
 from re import I
 from sanic.config import Config
-from aiogram.types import Sticker, Animation 
+from aiogram.types import Sticker, Animation, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedSticker
 from inlinebot.extension.helper import MessageHelper
 from meilisearch_python_async import Client
 
-from inlinebot.models import UnCheckedMediaItem, CheckedMediaItem
+from inlinebot.models import UnCheckedMediaItem
+
+def get_inline_media(uid: str, media_type: str, file_id: str):
+    if media_type == "sticker":
+        return InlineQueryResultCachedSticker(id=uid, sticker_file_id=file_id)
+    elif media_type == "animation":
+        return InlineQueryResultCachedMpeg4Gif(id=uid, mpeg4_file_id=file_id)
+
 
 async def add_media(helper: MessageHelper, client: Client, config: Config):
     content: Sticker | Animation = helper.content

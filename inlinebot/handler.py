@@ -6,7 +6,7 @@ from .services import bot, meili
 from .models import CheckedMediaItem, UnCheckedMediaItem, WhiteListConfig
 from .extension.helper import MessageHelper
 
-from .bussiness.process.media import add_media
+from .bussiness.process.media import add_media, get_inline_media
 from .bussiness.command import command_map
 
 
@@ -14,6 +14,7 @@ def register_handler(app: Sanic):
     # get bot 
     dp = bot.get_dp()
     client = meili.get_client()
+
     @dp.message_handler(content_types=ContentTypes.ANY)
     async def on_message(message: Message):
         
@@ -47,25 +48,25 @@ def register_handler(app: Sanic):
             return
 
         # file is not exists, insert it.
-        await add_media(helper, meili, app.config)
+        await add_media(helper, client, app.config)
 
 
     @dp.inline_handler()
     async def on_inline(message: InlineQuery):
-        pass
-        # try:
-        #   search by meilisearch
-        #   generate inlineQueryResultCache
-        #   pass
-        # except Exception as _e:
-        #     pass
-
-        # # create answer
-
-        # sticker1 = InlineQueryResultCachedSticker(
-        #     id="1", sticker_file_id="CAACAgUAAxkBAANeYwiUinVTiYqnzFsrlJsq7d42gKgAAr8GAAJzKhFWWYdR2ZI-XyMpBA"
-        # )
-        # sticker2 = InlineQueryResultCachedMpeg4Gif(
-        #     id="2", mpeg4_file_id="CgACAgUAAxkBAAOFYwnifGDyXRoPf5Q1lPpFR6E-n8kAArsGAAIDN3hWMVVnkLckNOApBA")
-        
-        # await message.answer([sticker1, sticker2])
+        try:
+            keywords = message.query
+            result = await client.index("checked").search(keywords)
+            # define answer list.
+            answers = []
+            for item in result.hits:
+                # get params
+                uid = item.get("uid")
+                media_type = item.get("media_type")
+                file_id = item.get("file_id")
+                # create result item.
+                media = get_inline_media(uid, media_type, file_id)
+                answers.append(media)
+            # return anser
+            await message.answer(answers)
+        except Exception as _e:
+            pass
