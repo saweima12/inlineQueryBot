@@ -21,3 +21,7 @@ services:
     environment:
       - BOT_CONFIG=/app/env.py
     command: "sanic inlinebot:app -H 0.0.0.0 -p 8001 -w 1"
+  nginx:
+    container_name: inline-nginx
+    image: nginx:alpine
+    
