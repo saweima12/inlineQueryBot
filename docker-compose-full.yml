@@ -10,7 +10,7 @@ services:
       - ./data/meili_data:/meili_data
     command: 'meilisearch --env="development"'
     environment:
-      - MEILI_MASTER_KEY='meilisearch-master-key'
+      - MEILI_MASTER_KEY=meilisearch-master-key
   bot:
     container_name: inline-bot
     build: .
