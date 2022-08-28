@@ -12,6 +12,8 @@ class UnCheckedMediaItem(OrjsonBaseModel):
     file_id: str
     keywords: List[str] = []
     attach: Dict[str, Any] = {}
+    cache_url: str = ""
+    file_path: str = ""
 
     @classmethod
     def get_index(cls, client: Client) -> Index:
@@ -24,6 +26,7 @@ class UnCheckedMediaItem(OrjsonBaseModel):
         items = [ cls(**item) for item in response.result ]
         return items
     
+    @classmethod
     async def get_item(cls, uid: str, client: Client) -> 'UnCheckedMediaItem' | None:
         selected = cls.get_index(client)
         try:
@@ -33,8 +36,11 @@ class UnCheckedMediaItem(OrjsonBaseModel):
         except:
             return None
 
-    async def save(self, client:Client) -> List['UnCheckedMediaItem'] | None:
+    async def save(self, client:Client) -> None:
         selected = self.get_index(client)
         await selected.add_documents([self.dict()])
         
+    async def delete(self, client: Client) -> None:
+        selected = self.get_index(client)
+        await selected.delete_document(self.uid)
     
