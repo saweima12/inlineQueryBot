@@ -16,8 +16,9 @@ async def register_user(*params, message: Message, **options):
         return
 
 
-    client = get_client()
+    meili = get_client()
     # get user_id
     user_id = str(message.from_user.id)
-    await WhiteListConfig.add_user(user_id, client)
+    await WhiteListConfig.add_user(user_id, meili)
     logger.info(f"on register user: {user_id}")
+    await message.reply("Register success!!")
