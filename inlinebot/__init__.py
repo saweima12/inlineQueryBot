@@ -1,8 +1,8 @@
 import os
 from sanic import Sanic
-from inlinebot.services import bot, meili
-from inlinebot.entities import ConfigIndex, CheckedMediaIndex, UnCheckedMediaIndex
 
+from .services import bot, meili
+from .entities import ConfigIndex, CheckedMediaIndex, UnCheckedMediaIndex
 from . import config, views, handler
 
 
@@ -16,7 +16,7 @@ env_path = os.environ.get("INLINEBOT_CONFIG")
 if env_path:
     app.update_config(env_path)
 
-
+# register meilisearch index.
 indexs_list = [
     ConfigIndex(),
     CheckedMediaIndex(),
@@ -35,4 +35,4 @@ handler.register_handler(app)
 # register route.
 views.register(app)
 app.static("/admin", "static/admin")
-
+app.static("/asset", "static/asset")
