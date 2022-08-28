@@ -64,6 +64,7 @@ def register_handler(app: Sanic):
         try:
             keywords = message.query
             result = await client.index("checked").search(keywords)
+            cache_time = app.config.get("INLINE_CACHE_TIME", 180)
             # define answer list.
             answers = []
             for item in result.hits:
@@ -75,6 +76,6 @@ def register_handler(app: Sanic):
                 media = get_inline_media(uid, media_type, file_id)
                 answers.append(media)
             # return anser
-            await message.answer(answers)
+            await message.answer(answers, cache_time=cache_time)
         except Exception as _e:
             pass
