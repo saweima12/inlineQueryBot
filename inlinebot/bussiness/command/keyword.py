@@ -29,7 +29,7 @@ async def set_keyword(*params, helper: MessageHelper, **options):
     if item:
         item.keywords = keywords
         await item.save(meili)
-        await helper.msg.reply(textlang.SK_SUCCESS)
+        await helper.msg.reply(textlang.SK_SUCCESS.format(keywords=item.keywords))
         return
 
     #  try get document from unchecked.
@@ -45,7 +45,7 @@ async def set_keyword(*params, helper: MessageHelper, **options):
             item.delete(meili),
             checked_item.save(meili)
         )
-        await helper.msg.reply(textlang.SK_SUCCESS)
+        await helper.msg.reply(textlang.SK_SUCCESS.format(keywords=item.keywords))
         return
 
     # didn't find document reply error
@@ -71,7 +71,7 @@ async def add_keyword(*params, helper: MessageHelper, **options):
     if item:
         item.keywords = [*item.keywords, *keywords]
         await item.save(meili)
-        await helper.msg.reply(textlang.AK_SUCCESS)
+        await helper.msg.reply(textlang.AK_SUCCESS.format(keywords=item.keywords))
         return
 
     #  try get document from unchecked.
@@ -87,7 +87,7 @@ async def add_keyword(*params, helper: MessageHelper, **options):
             item.delete(meili),
             checked_item.save(meili)
         )
-        await helper.msg.reply(textlang.AK_SUCCESS)
+        await helper.msg.reply(textlang.AK_SUCCESS.format(keywords=checked_item.keywords))
         return
 
     # didn't find document reply error

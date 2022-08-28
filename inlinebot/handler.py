@@ -2,6 +2,8 @@ from typing import Dict
 from sanic import Sanic
 from aiogram.types import Message, ContentTypes, InlineQuery, InlineQueryResultCachedSticker, InlineQueryResultCachedMpeg4Gif
 
+from inlinebot import textlang
+
 from .services import bot, meili
 from .models import CheckedMediaItem, UnCheckedMediaItem, WhiteListConfig
 from .extension.helper import MessageHelper
@@ -40,14 +42,20 @@ def register_handler(app: Sanic):
         # in checked return
         checked_item = await CheckedMediaItem.get_item(uid, client)
         if checked_item:
+            rtn_msg = textlang.MEDIA_CHECKED.format(keywords=checked_item.keywords)
+            await message.reply(rtn_msg)
             return
 
         # in unchecked return.
         uncheced_item = await UnCheckedMediaItem.get_item(uid, client)
         if uncheced_item: 
+            rtn_msg = textlang.MEDIA_UNCHECKED.format(keywords=uncheced_item.keywords)
+            await message.reply(rtn_msg)
             return
 
         # file is not exists, insert it.
+        rtn_msg = textlang.MEDIA_NEW
+        await message.reply(rtn_msg)
         await add_media(helper, client, app.config)
 
 
