@@ -22,3 +22,10 @@ async def on_update(request: Request, token: str):
     await _dp.process_update(update)
 
     return response.empty(200)
+
+@bp.get("/test")
+async def test_me(request: Request):
+    _bot = bot.get_bot()
+
+    info = await _bot.get_me()
+    return response.json(info.to_python())

@@ -12,7 +12,7 @@ def register(app: Sanic):
             bot.bp, 
             admin.bp
         ],
-        url_prefix="/mmbq")
+        url_prefix=url_prefix)
 
     # register group to app
     app.blueprint(group)
