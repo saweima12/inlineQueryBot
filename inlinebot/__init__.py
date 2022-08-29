@@ -34,5 +34,3 @@ handler.register_handler(app)
 
 # register route.
 views.register(app)
-app.static("/admin", "static/admin")
-app.static("/asset", "static/asset")

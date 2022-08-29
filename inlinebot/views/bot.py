@@ -29,3 +29,7 @@ async def test_me(request: Request):
 
     info = await _bot.get_me()
     return response.json(info.to_python())
+
+# register static
+bp.static("/asset", "static/asset")
+bp.static("/admin", "static/admin")
