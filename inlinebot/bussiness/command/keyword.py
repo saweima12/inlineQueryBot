@@ -22,6 +22,9 @@ async def set_keyword(*params, helper: MessageHelper, **options):
     logger.info(f"[{user_name}] {command}")
 
     reply_helper = MessageHelper(helper.msg.reply_to_message)
+    
+    if not params:
+        return
 
     # get first params & split.
     keywords = str(params[0]).split(',')
@@ -63,6 +66,9 @@ async def add_keyword(*params, helper: MessageHelper, **options):
     if not await is_avaliable(params, helper=helper, meili=meili):
         return
 
+    if not params:
+        return
+    
     # log user command
     user_name = helper.msg.from_user.full_name
     command = helper.msg.text
