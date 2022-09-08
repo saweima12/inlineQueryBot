@@ -58,7 +58,7 @@ async def set_keyword(*params, helper: MessageHelper, **options):
     # remove from unchecked, insert into checked.
     await asyncio.gather(
         item.delete(meili),
-        checked_item.save(meili)
+        checked_item.save(meili),
         helper.msg.reply(textlang.SK_SUCCESS.format(keywords=checked_item.keywords))
     )
 
@@ -113,7 +113,7 @@ async def add_keyword(*params, helper: MessageHelper, **options):
     # save to checked db.
     await asyncio.gather(
         item.delete(meili),
-        checked_item.save(meili)
+        checked_item.save(meili),
         helper.msg.reply(textlang.AK_SUCCESS.format(keywords=checked_item.keywords))
     )
 
