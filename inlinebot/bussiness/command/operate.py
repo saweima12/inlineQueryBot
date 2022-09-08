@@ -1,4 +1,5 @@
 import asyncio
+from typing import Tuple
 from sanic.log import logger
 from aiogram.types import Message, Sticker, Animation
 from meilisearch_python_async import Client
@@ -13,7 +14,10 @@ async def set_keyword(*params, helper: MessageHelper, **options):
     # check whitelist
     meili = get_client()
 
-    if not await is_avaliable(params, helper=helper, meili=meili):
+    # check command is avaliable
+    is_ok, msg = await is_avaliable(params, helper=helper, meili=meili) 
+    if not is_ok:
+        await helper.msg.reply(msg)
         return
   
     # log user command
@@ -43,27 +47,31 @@ async def set_keyword(*params, helper: MessageHelper, **options):
     #  try get document from unchecked.
     item = await UnCheckedMediaItem.get_item(content.file_unique_id, meili)
 
-    if item:
-        # remove from unchecked, insert into checked.
-        checked_item = CheckedMediaItem(**item.dict())
-        checked_item.keywords = keywords
-        
-        # save to checked db.
-        await asyncio.gather(
-            item.delete(meili),
-            checked_item.save(meili)
-        )
-        await helper.msg.reply(textlang.SK_SUCCESS.format(keywords=checked_item.keywords))
+    if not item:
+        # didn't find document reply error
+        await helper.msg.reply(textlang.SK_404_DOCUMENT)
         return
+    
+    checked_item = CheckedMediaItem(**item.dict())
+    checked_item.keywords = keywords
+    
+    # remove from unchecked, insert into checked.
+    await asyncio.gather(
+        item.delete(meili),
+        checked_item.save(meili)
+        helper.msg.reply(textlang.SK_SUCCESS.format(keywords=checked_item.keywords))
+    )
 
-    # didn't find document reply error
-    await helper.msg.reply(textlang.SK_404_DOCUMENT)
 
 async def add_keyword(*params, helper: MessageHelper, **options):
     # check whitelist
     meili = get_client()
 
-    if not await is_avaliable(params, helper=helper, meili=meili):
+    is_ok, msg = await is_avaliable(params, helper=helper, meili=meili) 
+
+    # check command is avaliable.
+    if not is_ok:
+        await helper.msg.reply(msg)
         return
 
     if not params:
@@ -93,24 +101,58 @@ async def add_keyword(*params, helper: MessageHelper, **options):
     #  try get document from unchecked.
     item = await UnCheckedMediaItem.get_item(content.file_unique_id, meili)
 
-    if item:
-        # remove from unchecked, insert into checked.
-        checked_item = CheckedMediaItem(**item.dict())
-        checked_item.keywords = keywords
-        
-        # save to checked db.
-        await asyncio.gather(
-            item.delete(meili),
-            checked_item.save(meili)
-        )
-        await helper.msg.reply(textlang.AK_SUCCESS.format(keywords=checked_item.keywords))
+    # didn't find document reply error
+    if not item:
+        await helper.msg.reply(textlang.SK_404_DOCUMENT)
         return
 
-    # didn't find document reply error
-    await helper.msg.reply(textlang.SK_404_DOCUMENT)
+    # remove from unchecked, insert into checked.
+    checked_item = CheckedMediaItem(**item.dict())
+    checked_item.keywords = keywords
     
+    # save to checked db.
+    await asyncio.gather(
+        item.delete(meili),
+        checked_item.save(meili)
+        helper.msg.reply(textlang.AK_SUCCESS.format(keywords=checked_item.keywords))
+    )
 
-async def is_avaliable(*params, helper: MessageHelper, meili: Client):
+    
+async def remove_media(*params, helper: MessageHelper, **options):
+    # check whitelist
+    meili = get_client()
+
+    is_ok, msg = await is_avaliable(params, helper=helper, meili=meili) 
+
+    # check command is avaliable.
+    if not is_ok:
+        await helper.msg.reply(msg)
+        return
+
+    # log user command
+    user_name = helper.msg.from_user.full_name
+    command = helper.msg.text
+    logger.info(f"[{user_name}] {command}")
+
+    reply_helper = MessageHelper(helper.msg.reply_to_message)
+    # try get document from checked.
+    content: Sticker | Animation = reply_helper.content
+    item = await CheckedMediaItem.get_item(content.file_unique_id, meili)
+    
+    # didn't find document reply error
+    if not item:
+        await helper.msg.reply(textlang.SK_404_DOCUMENT)
+        return
+
+    # remove item & send reply message.
+    await asyncio.gather(
+        item.delete(meili),
+        helper.msg.reply(textlang.RM_SUCCESS)
+    )
+
+
+
+async def is_avaliable(*params, helper: MessageHelper, meili: Client) -> Tuple[bool, str]:
  
     has_user = await WhiteListConfig.has_user(helper.user_id, meili)
     if not has_user:
@@ -119,17 +161,14 @@ async def is_avaliable(*params, helper: MessageHelper, meili: Client):
     # check reply message.
     reply_msg = helper.msg.reply_to_message
     if not reply_msg:
-        await helper.msg.reply(textlang.SK_NEED_REPLY)
-        return False
+        return (False, textlang.SK_NEED_REPLY)
     
     reply_helper = MessageHelper(reply_msg)
     if not reply_helper.is_media():
-        await helper.msg.reply(textlang.SK_NEED_REPLY)
-        return False
+        return (False, textlang.SK_NEED_REPLY)
 
     # check params
     if len(params) < 1:
-        await helper.msg.reply(textlang.SK_PRAMAS_ERROR)
-        return False
+        return (False, textlang.SK_PRAMAS_ERROR)
 
-    return True
+    return (True, "")
