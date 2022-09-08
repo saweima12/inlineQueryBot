@@ -40,3 +40,4 @@ SK_404_DOCUMENT="找不到對應的貼圖或是 GIF, 請重新登錄。"
 
 SK_SUCCESS="設置關鍵字成功。新的關鍵字組為：{keywords}"
 AK_SUCCESS="新增關鍵字成功。新的關鍵字組為：{keywords}"
+RM_SUCCESS="移除 Media 成功。"
