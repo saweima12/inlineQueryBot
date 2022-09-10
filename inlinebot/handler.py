@@ -1,5 +1,5 @@
-from typing import Dict
 from sanic import Sanic
+from sanic.log import logger
 from aiogram.types import Message, ContentTypes, InlineQuery, InlineQueryResultCachedSticker, InlineQueryResultCachedMpeg4Gif
 
 from inlinebot import textlang
@@ -76,6 +76,7 @@ def register_handler(app: Sanic):
                 media = get_inline_media(uid, media_type, file_id)
                 answers.append(media)
             # return anser
+            logger.info(f"Query [{message.from_user.full_name}]({message.query})")
             await message.answer(answers, cache_time=cache_time)
         except Exception as _e:
             pass
