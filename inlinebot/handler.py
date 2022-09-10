@@ -76,7 +76,7 @@ def register_handler(app: Sanic):
                 media = get_inline_media(uid, media_type, file_id)
                 answers.append(media)
             # return anser
-            logger.info(f"Query [{message.from_user.full_name}]({message.query})")
+            logger.info(f"Query [{message.from_user.full_name}] {message.query}")
             await message.answer(answers, cache_time=cache_time)
         except Exception as _e:
             pass
