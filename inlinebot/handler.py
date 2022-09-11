@@ -21,42 +21,48 @@ def register_handler(app: Sanic):
     async def on_message(message: Message):
         
         helper = MessageHelper(message)
-        # process command
-        if helper.is_text():
-            if command_map.is_avaliable(message.text):
-                await command_map.notify(message.text, message=message, helper=helper)
+
+        try:
+            # process command
+            if helper.is_text():
+                if command_map.is_avaliable(message.text):
+                    await command_map.notify(message.text, message=message, helper=helper)
+                    return
+
+            # check content is sticker or animation
+            if not helper.is_media():
                 return
 
-        # check content is sticker or animation
-        if not helper.is_media():
-            return
+            # check permission
+            is_user = await WhiteListConfig.has_user(helper.user_id, client)
+            if not is_user:
+                return
 
-        # check permission
-        is_user = await WhiteListConfig.has_user(helper.user_id, client)
-        if not is_user:
-            return
+            # check document not exists.
+            uid = helper.content["file_unique_id"]
 
-        # check document not exists.
-        uid = helper.content["file_unique_id"]
+            # in checked return
+            checked_item = await CheckedMediaItem.get_item(uid, client)
+            if checked_item:
+                rtn_msg = textlang.MEDIA_CHECKED.format(keywords=checked_item.keywords)
+                await message.reply(rtn_msg)
+                return
 
-        # in checked return
-        checked_item = await CheckedMediaItem.get_item(uid, client)
-        if checked_item:
-            rtn_msg = textlang.MEDIA_CHECKED.format(keywords=checked_item.keywords)
+            # in unchecked return.
+            uncheced_item = await UnCheckedMediaItem.get_item(uid, client)
+            if uncheced_item: 
+                rtn_msg = textlang.MEDIA_UNCHECKED.format(keywords=uncheced_item.keywords)
+                await message.reply(rtn_msg)
+                return
+
+            # file is not exists, insert it.
+            rtn_msg = textlang.MEDIA_NEW
             await message.reply(rtn_msg)
-            return
-
-        # in unchecked return.
-        uncheced_item = await UnCheckedMediaItem.get_item(uid, client)
-        if uncheced_item: 
-            rtn_msg = textlang.MEDIA_UNCHECKED.format(keywords=uncheced_item.keywords)
-            await message.reply(rtn_msg)
-            return
-
-        # file is not exists, insert it.
-        rtn_msg = textlang.MEDIA_NEW
-        await message.reply(rtn_msg)
-        await add_media(helper, client, app.config)
+            await add_media(helper, client, app.config)
+        except Exception as _e:
+            logger.error(_e.args)
+            logger.error(f"Error: {message.as_json()}")
+            await message.reply(textlang.MSG_500)
 
 
     @dp.inline_handler()

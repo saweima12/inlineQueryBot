@@ -34,6 +34,8 @@ HELP_MSG="""
 
 REGISTER_SUCCESS="註冊成功！"
 
+MSG_500 = "遇到未知錯誤，請聯繫此機器的管理者。"
+
 SK_NEED_REPLY="需要 reply 一個貼圖或是 GIF。"
 SK_PRAMAS_ERROR="關鍵字必須至少有一組並且用半形逗號隔開。"
 SK_404_DOCUMENT="找不到對應的貼圖或是 GIF, 請重新登錄。"
