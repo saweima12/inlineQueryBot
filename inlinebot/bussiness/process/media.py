@@ -1,6 +1,6 @@
 from re import I
 from sanic.config import Config
-from aiogram.types import Sticker, Animation, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedSticker
+from aiogram.types import Sticker, Animation, Document, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedSticker
 from inlinebot.extension.helper import MessageHelper
 from meilisearch_python_async import Client
 
@@ -14,6 +14,7 @@ def get_inline_media(uid: str, media_type: str, file_id: str):
 
 
 async def add_media(helper: MessageHelper, client: Client, config: Config):
+
     content: Sticker | Animation = helper.content
     # get file params
     uid = content.file_unique_id
@@ -25,16 +26,16 @@ async def add_media(helper: MessageHelper, client: Client, config: Config):
                         media_type=helper.content_type, 
                         file_id=helper.content["file_id"])    
     
-    # generate save_path
-    if helper.is_sticker():
-        save_path = f"{content.set_name}/{content.file_unique_id}.webp"
-    elif helper.is_animation():
-        save_path = f"gif/{content.file_unique_id}.webp"
-
+    # process save_path
+    save_path = get_media_savepath(helper)
     item.file_path = save_path
+
     # save thumb
-    await content.thumb.download(destination_file=f"{cache_dir}/{save_path}")
-    
+    if content.thumb:
+        await content.thumb.download(destination_file=f"{cache_dir}/{save_path}")
+    else:
+        await content.download(destination_file=f"{cache_dir}/{save_path}")
+
     # generate cache_url
     if cache_root_url:
         item.cache_url = f"{cache_root_url}/{save_path}"
@@ -43,3 +44,18 @@ async def add_media(helper: MessageHelper, client: Client, config: Config):
 
     # save image.
     await item.save(client)
+
+def get_media_savepath(helper: MessageHelper) -> str:
+    # generate save_path
+    content = helper.content
+
+    if helper.is_sticker():
+        return f"{content.set_name}/{content.file_unique_id}.webp"
+
+    if helper.is_animation():
+        if content.thumb:
+            return f"gif/{content.file_unique_id}.webp"
+    
+        # check media_type
+        if content.mime_type == "video/mp4":
+            return f"gif/{content.file_unique_id}.mp4"
