@@ -22,7 +22,7 @@ async def on_update(request: Request, token: str):
         await _dp.process_update(update)
     except Exception as _e:
         logger.error(f"Error: {request.json}")
-
+    finally:
         return response.empty(200)
 
 @bp.get("/test")
