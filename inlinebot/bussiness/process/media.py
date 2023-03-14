@@ -27,10 +27,11 @@ def get_inline_media(uid: str, media_type: str, file_id: str, search_type: str):
     if search_type == "mp3":
         if media_type == "audio":
             return InlineQueryResultCachedAudio(id=uid, audio_file_id=file_id)
-    if media_type == "sticker":
-        return InlineQueryResultCachedSticker(id=uid, sticker_file_id=file_id)
-    elif media_type == "animation":
-        return InlineQueryResultCachedMpeg4Gif(id=uid, mpeg4_file_id=file_id)
+    else:
+        if media_type == "sticker":
+            return InlineQueryResultCachedSticker(id=uid, sticker_file_id=file_id)
+        elif media_type == "animation":
+            return InlineQueryResultCachedMpeg4Gif(id=uid, mpeg4_file_id=file_id)
 
 
 

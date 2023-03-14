@@ -89,7 +89,7 @@ def register_handler(app: Sanic):
                 file_id = item.get("file_id")
                 # create result item.
                 media = get_inline_media(uid, media_type, file_id, search_type)
-                
+                print(media)
                 if media:
                     answers.append(media)
             # return anser
