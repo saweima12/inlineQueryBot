@@ -1,6 +1,11 @@
+import re
 from sanic import Sanic
 from sanic.log import logger
-from aiogram.types import Message, ContentTypes, InlineQuery, InlineQueryResultCachedSticker, InlineQueryResultCachedMpeg4Gif
+from aiogram.types import (
+    Message, 
+    ContentTypes, 
+    InlineQuery
+)
 
 from inlinebot import textlang
 
@@ -8,7 +13,7 @@ from .services import bot, meili
 from .models import CheckedMediaItem, UnCheckedMediaItem, WhiteListConfig
 from .extension.helper import MessageHelper
 
-from .bussiness.process.media import add_media, get_inline_media
+from .bussiness.process.media import add_media, get_inline_media, get_search_tuple
 from .bussiness.command import command_map
 
 
@@ -68,10 +73,14 @@ def register_handler(app: Sanic):
     @dp.inline_handler()
     async def on_inline(message: InlineQuery):
         try:
-            keywords = message.query
+            query_str = message.query
+            search_type, keywords = get_search_tuple(query_str)
+            logger.debug(f"Search: {search_type}, {keywords}")
+
             result = await client.index("checked").search(keywords)
             cache_time = app.config.get("INLINE_CACHE_TIME", 180)
-            # define answer list.
+
+            # declare answer list.
             answers = []
             for item in result.hits:
                 # get params
@@ -79,10 +88,12 @@ def register_handler(app: Sanic):
                 media_type = item.get("media_type")
                 file_id = item.get("file_id")
                 # create result item.
-                media = get_inline_media(uid, media_type, file_id)
-                answers.append(media)
+                media = get_inline_media(uid, media_type, file_id, search_type)
+                
+                if media:
+                    answers.append(media)
             # return anser
             logger.info(f"Query [{message.from_user.full_name}] {message.query}")
             await message.answer(answers, cache_time=cache_time)
         except Exception as _e:
-            pass
+            logger.error(_e)

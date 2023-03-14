@@ -11,7 +11,7 @@ class MessageHelper:
         return str(self.msg.content_type)
 
     @property
-    def content(self) -> any:
+    def content(self) -> Sticker | Animation | Audio:
         return self.msg[self.msg.content_type]
 
     @property
@@ -19,7 +19,7 @@ class MessageHelper:
         return str(self.msg.from_user.id)
 
     def is_media(self) -> bool:
-        return self.content_type in ["sticker", "animation"]
+        return self.content_type in ["sticker", "animation", "audio"]
 
     def is_text(self) -> bool:
         return self.msg.content_type == "text"
@@ -29,4 +29,7 @@ class MessageHelper:
     
     def is_animation(self) -> bool:
         return self.msg.content_type == "animation"
+
+    def is_audio(self) -> bool:
+        return self.msg.content_type == "audio"
     
